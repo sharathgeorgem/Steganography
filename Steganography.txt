@@ -113,5 +113,5 @@ function duplicate(image) {
     return double;
 }
 
-var dona = duplicate(done);
-print(dona);
+var output = duplicate(done);
+print(output);
