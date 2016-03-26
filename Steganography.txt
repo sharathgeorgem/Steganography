@@ -1,0 +1,117 @@
+// write your code here
+//STEGANOGRAPHY
+
+var start = new SimpleImage("astrachan.jpg");
+var hide = new SimpleImage("duvall.jpg");
+
+print(start);
+print(hide);
+
+var cropstart = crop(start,hide.getWidth(),hide.getHeight());
+print(cropstart);
+
+function crop(image, width, height){
+     var n = new SimpleImage(width,height);
+     for(var p of image.values()){
+   	   var x = p.getX();
+   	   var y = p.getY();
+  	   if (x < width && y < height){
+            var np = n.getPixel(x,y);
+            np.setRed(p.getRed());  
+            np.setBlue(p.getBlue());
+            np.setGreen(p.getGreen()); 
+        }
+    }
+    return n;
+}
+
+function chop2hide(image) {
+    for(var pixel of image.values()) {
+        pixel.setRed((Math.floor(pixel.getRed() / 16)) *16);
+        pixel.setGreen((Math.floor(pixel.getGreen()/16)) *16);
+        pixel.setBlue((Math.floor(pixel.getBlue()/16)) *16);
+    }
+    return image;
+}
+var sam1 = start.getPixel(50,60);
+print("before" + sam1.getRed());
+var nstart = chop2hide(cropstart);
+var sam2 = nstart.getPixel(50,60);
+print("after" + sam2.getRed());
+print(nstart);
+
+function shift(image) {
+    for(var pixel of image.values()) {
+        pixel.setRed(Math.floor(pixel.getRed()/16));
+        pixel.setGreen(Math.floor(pixel.getGreen()/16));
+        pixel.setBlue(Math.floor(pixel.getBlue()/16));
+    }
+    return image;
+}
+var nhide = shift(hide);
+print(nhide);
+
+function newpv(p,q) {
+    var sum = p+q;
+    if(sum > 255) {
+        print("Sum greater than 255");
+        return;
+    }
+    return sum;
+}
+
+function combine(image1,image2) {
+    var si = new SimpleImage(image1.getWidth(),                                    image1.getHeight());
+    var x,y;
+    for(var pix of image1.values()) {
+         x = pix.getX();
+         y = pix.getY();
+         var pox = image2.getPixel(x,y);
+         var pux = si.getPixel(x,y);
+         pux.setRed(newpv(pix.getRed(),pox.getRed()));
+         pux.setBlue(newpv(pix.getBlue(),pox.getBlue()));
+         pux.setGreen(newpv(pix.getGreen(),pox.getGreen()));
+    }
+    return si;
+}
+
+var finalimg = combine(nstart,nhide);
+print(finalimg);
+
+function extract(image) {
+    for(var pi of image.values()) {
+        pi.setRed((pi.getRed() % 16) * 16);
+        pi.setBlue((pi.getBlue() % 16) * 16);
+        pi.setGreen((pi.getGreen() % 16) * 16);
+    }
+    return image;
+}
+var finalig = new SimpleImage("cat.png")
+var done = extract(finalig);
+print(done);
+
+function duplicate(image) {
+    var width = image.getWidth();
+    var height = image.getHeight();
+    var double = new SimpleImage(width*2, height*2);
+    print(double.getWidth(),double.getHeight());
+    print(double);
+    for(var pix of double.values()) {
+        var x = pix.getX();
+        var ex = x;
+        var y = pix.getY();
+        var ey = y;
+        if(ex >= width || ey >= height) {
+            ex = ex % width;
+            ey = ey % height;
+        }
+        var pox = image.getPixel(ex,ey);
+        pix.setRed(pox.getRed());
+        pix.setBlue(pox.getBlue());
+        pix.setGreen(pox.getGreen());
+    }
+    return double;
+}
+
+var dona = duplicate(done);
+print(dona);
